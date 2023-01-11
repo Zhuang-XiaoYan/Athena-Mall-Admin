@@ -3,10 +3,10 @@
 本项目主要介绍构建athena-ruoyi项目生产云部署工作，后期将全部服务完整上云。
 该仓库同时为后期大规模服务上云以及灰度发布等功能进行演习与测试。
 
-![img.png](Xmind/ruoyi-architecture.png)
-![img.png](Xmind/ruoyi.jpg)
-![img.png](Xmind/ruoyi2.png)
-![img.png](Xmind/ruoyi3.png)
+![img.png](Xmind/images/ruoyi-architecture.png)
+![img.png](Xmind/images/ruoyi.jpg)
+![img.png](Xmind/images/ruoyi2.png)
+![img.png](Xmind/images/ruoyi3.png)
 -----------------------------------------------------------------------------------------------
 其他平台将同步更新
 

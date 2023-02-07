@@ -23,6 +23,7 @@
 
 # 二、Athena-RuoYi的微服务系统
 
+```
 com.ruoyi     
 ├── ruoyi-ui              // 前端框架 [80]
 ├── ruoyi-gateway         // 网关模块 [8080]
@@ -46,6 +47,7 @@ com.ruoyi
 ├── ruoyi-visual                                      // 图形化管理模块
 │       └── ruoyi-visual-monitor                      // 监控中心 [9100]
 ├──pom.xml                                            // 公共依赖
+```
 
 # 二、Athena-RuoYi 阿里云仓库
 

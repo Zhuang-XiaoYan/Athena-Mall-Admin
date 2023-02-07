@@ -1,7 +1,7 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
-import com.ruoyi.system.api.domain.SysDictData;
+import com.ruoyi.system.domain.SysDictData;
 
 /**
  * 字典 业务层
@@ -39,6 +39,7 @@ public interface ISysDictDataService
      * 批量删除字典数据信息
      * 
      * @param dictCodes 需要删除的字典数据ID
+     * @return 结果
      */
     public void deleteDictDataByIds(Long[] dictCodes);
 

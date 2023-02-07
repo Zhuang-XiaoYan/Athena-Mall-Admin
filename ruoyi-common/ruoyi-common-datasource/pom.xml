@@ -5,19 +5,19 @@
     <parent>
         <groupId>com.ruoyi</groupId>
         <artifactId>ruoyi-common</artifactId>
-        <version>3.6.1</version>
+        <version>3.1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     
     <artifactId>ruoyi-common-datasource</artifactId>
-
+	
     <description>
         ruoyi-common-datasource多数据源
     </description>
 
     <dependencies>
 
-        <!-- Druid -->
+		<!-- Druid -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
@@ -29,6 +29,12 @@
             <groupId>com.baomidou</groupId>
             <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
             <version>${dynamic-ds.version}</version>
+        </dependency>
+        
+        <!-- SpringBoot Seata -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
         </dependency>
 
     </dependencies>

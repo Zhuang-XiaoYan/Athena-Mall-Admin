@@ -9,13 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.common.core.constant.UserConstants;
-import com.ruoyi.common.core.exception.ServiceException;
+import com.ruoyi.common.core.exception.CustomException;
 import com.ruoyi.common.core.utils.SpringUtils;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.datascope.annotation.DataScope;
-import com.ruoyi.common.security.utils.SecurityUtils;
 import com.ruoyi.system.api.domain.SysRole;
-import com.ruoyi.system.api.domain.SysUser;
 import com.ruoyi.system.domain.SysRoleDept;
 import com.ruoyi.system.domain.SysRoleMenu;
 import com.ruoyi.system.domain.SysUserRole;
@@ -122,7 +120,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @return 选中角色ID列表
      */
     @Override
-    public List<Long> selectRoleListByUserId(Long userId)
+    public List<Integer> selectRoleListByUserId(Long userId)
     {
         return roleMapper.selectRoleListByUserId(userId);
     }
@@ -185,27 +183,7 @@ public class SysRoleServiceImpl implements ISysRoleService
     {
         if (StringUtils.isNotNull(role.getRoleId()) && role.isAdmin())
         {
-            throw new ServiceException("不允许操作超级管理员角色");
-        }
-    }
-
-    /**
-     * 校验角色是否有数据权限
-     * 
-     * @param roleId 角色id
-     */
-    @Override
-    public void checkRoleDataScope(Long roleId)
-    {
-        if (!SysUser.isAdmin(SecurityUtils.getUserId()))
-        {
-            SysRole role = new SysRole();
-            role.setRoleId(roleId);
-            List<SysRole> roles = SpringUtils.getAopProxy(this).selectRoleList(role);
-            if (StringUtils.isEmpty(roles))
-            {
-                throw new ServiceException("没有权限访问角色数据！");
-            }
+            throw new CustomException("不允许操作超级管理员角色");
         }
     }
 
@@ -228,7 +206,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int insertRole(SysRole role)
     {
         // 新增角色信息
@@ -243,7 +221,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int updateRole(SysRole role)
     {
         // 修改角色信息
@@ -272,7 +250,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int authDataScope(SysRole role)
     {
         // 修改角色信息
@@ -338,7 +316,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int deleteRoleById(Long roleId)
     {
         // 删除角色与菜单关联
@@ -355,17 +333,16 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int deleteRoleByIds(Long[] roleIds)
     {
         for (Long roleId : roleIds)
         {
             checkRoleAllowed(new SysRole(roleId));
-            checkRoleDataScope(roleId);
             SysRole role = selectRoleById(roleId);
             if (countUserRoleByRoleId(roleId) > 0)
             {
-                throw new ServiceException(String.format("%1$s已分配,不能删除", role.getRoleName()));
+                throw new CustomException(String.format("%1$s已分配,不能删除", role.getRoleName()));
             }
         }
         // 删除角色与菜单关联
@@ -404,7 +381,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * 批量选择授权用户角色
      * 
      * @param roleId 角色ID
-     * @param userIds 需要授权的用户数据ID
+     * @param userIds 需要删除的用户数据ID
      * @return 结果
      */
     @Override

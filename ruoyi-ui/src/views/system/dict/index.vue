@@ -1,11 +1,12 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="字典名称" prop="dictName">
         <el-input
           v-model="queryParams.dictName"
           placeholder="请输入字典名称"
           clearable
+          size="small"
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
@@ -15,6 +16,7 @@
           v-model="queryParams.dictType"
           placeholder="请输入字典类型"
           clearable
+          size="small"
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
@@ -24,19 +26,21 @@
           v-model="queryParams.status"
           placeholder="字典状态"
           clearable
+          size="small"
           style="width: 240px"
         >
           <el-option
-            v-for="dict in dict.type.sys_normal_disable"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
+            v-for="dict in statusOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
           />
         </el-select>
       </el-form-item>
       <el-form-item label="创建时间">
         <el-date-picker
           v-model="dateRange"
+          size="small"
           style="width: 240px"
           value-format="yyyy-MM-dd"
           type="daterange"
@@ -120,7 +124,7 @@
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
+          <dict-tag :options="statusOptions" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
@@ -169,10 +173,10 @@
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio
-              v-for="dict in dict.type.sys_normal_disable"
-              :key="dict.value"
-              :label="dict.value"
-            >{{dict.label}}</el-radio>
+              v-for="dict in statusOptions"
+              :key="dict.dictValue"
+              :label="dict.dictValue"
+            >{{dict.dictLabel}}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -192,7 +196,6 @@ import { listType, getType, delType, addType, updateType, refreshCache } from "@
 
 export default {
   name: "Dict",
-  dicts: ['sys_normal_disable'],
   data() {
     return {
       // 遮罩层
@@ -213,6 +216,8 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 状态数据字典
+      statusOptions: [],
       // 日期范围
       dateRange: [],
       // 查询参数
@@ -238,6 +243,9 @@ export default {
   },
   created() {
     this.getList();
+    this.getDicts("sys_normal_disable").then(response => {
+      this.statusOptions = response.data;
+    });
   },
   methods: {
     /** 查询字典类型列表 */
@@ -305,13 +313,13 @@ export default {
         if (valid) {
           if (this.form.dictId != undefined) {
             updateType(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
+              this.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
             addType(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
+              this.msgSuccess("新增成功");
               this.open = false;
               this.getList();
             });
@@ -322,12 +330,16 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const dictIds = row.dictId || this.ids;
-      this.$modal.confirm('是否确认删除字典编号为"' + dictIds + '"的数据项？').then(function() {
-        return delType(dictIds);
-      }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
+      this.$confirm('是否确认删除字典编号为"' + dictIds + '"的数据项?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function() {
+          return delType(dictIds);
+        }).then(() => {
+          this.getList();
+          this.msgSuccess("删除成功");
+        }).catch(() => {});
     },
     /** 导出按钮操作 */
     handleExport() {
@@ -338,8 +350,7 @@ export default {
     /** 刷新缓存按钮操作 */
     handleRefreshCache() {
       refreshCache().then(() => {
-        this.$modal.msgSuccess("刷新成功");
-        this.$store.dispatch('dict/cleanDict');
+        this.msgSuccess("刷新成功");
       });
     }
   }

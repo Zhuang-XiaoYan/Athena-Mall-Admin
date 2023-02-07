@@ -74,7 +74,7 @@ public class SysJobServiceImpl implements ISysJobService
      * @param job 调度信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int pauseJob(SysJob job) throws SchedulerException
     {
         Long jobId = job.getJobId();
@@ -94,7 +94,7 @@ public class SysJobServiceImpl implements ISysJobService
      * @param job 调度信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int resumeJob(SysJob job) throws SchedulerException
     {
         Long jobId = job.getJobId();
@@ -114,7 +114,7 @@ public class SysJobServiceImpl implements ISysJobService
      * @param job 调度信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int deleteJob(SysJob job) throws SchedulerException
     {
         Long jobId = job.getJobId();
@@ -134,7 +134,7 @@ public class SysJobServiceImpl implements ISysJobService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void deleteJobByIds(Long[] jobIds) throws SchedulerException
     {
         for (Long jobId : jobIds)
@@ -150,7 +150,7 @@ public class SysJobServiceImpl implements ISysJobService
      * @param job 调度信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int changeStatus(SysJob job) throws SchedulerException
     {
         int rows = 0;
@@ -172,23 +172,16 @@ public class SysJobServiceImpl implements ISysJobService
      * @param job 调度信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean run(SysJob job) throws SchedulerException
+    @Transactional
+    public void run(SysJob job) throws SchedulerException
     {
-        boolean result = false;
         Long jobId = job.getJobId();
         String jobGroup = job.getJobGroup();
         SysJob properties = selectJobById(job.getJobId());
         // 参数
         JobDataMap dataMap = new JobDataMap();
         dataMap.put(ScheduleConstants.TASK_PROPERTIES, properties);
-        JobKey jobKey = ScheduleUtils.getJobKey(jobId, jobGroup);
-        if (scheduler.checkExists(jobKey))
-        {
-            result = true;
-            scheduler.triggerJob(jobKey, dataMap);
-        }
-        return result;
+        scheduler.triggerJob(ScheduleUtils.getJobKey(jobId, jobGroup), dataMap);
     }
 
     /**
@@ -197,7 +190,7 @@ public class SysJobServiceImpl implements ISysJobService
      * @param job 调度信息 调度信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int insertJob(SysJob job) throws SchedulerException, TaskException
     {
         job.setStatus(ScheduleConstants.Status.PAUSE.getValue());
@@ -215,7 +208,7 @@ public class SysJobServiceImpl implements ISysJobService
      * @param job 调度信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int updateJob(SysJob job) throws SchedulerException, TaskException
     {
         SysJob properties = selectJobById(job.getJobId());

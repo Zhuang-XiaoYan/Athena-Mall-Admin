@@ -1,13 +1,17 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
-import com.ruoyi.system.api.domain.SysDictType;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.ruoyi.system.domain.SysDictType;
 
 /**
  * 字典表 数据层
  * 
  * @author ruoyi
  */
+@Mapper
 public interface SysDictTypeMapper
 {
     /**

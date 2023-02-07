@@ -69,37 +69,26 @@ public class EscapeUtil
      */
     private static String encode(String text)
     {
-        if (StringUtils.isEmpty(text))
+        int len;
+        if ((text == null) || ((len = text.length()) == 0))
         {
             return StringUtils.EMPTY;
         }
-
-        final StringBuilder tmp = new StringBuilder(text.length() * 6);
+        StringBuilder buffer = new StringBuilder(len + (len >> 2));
         char c;
-        for (int i = 0; i < text.length(); i++)
+        for (int i = 0; i < len; i++)
         {
             c = text.charAt(i);
-            if (c < 256)
+            if (c < 64)
             {
-                tmp.append("%");
-                if (c < 16)
-                {
-                    tmp.append("0");
-                }
-                tmp.append(Integer.toString(c, 16));
+                buffer.append(TEXT[c]);
             }
             else
             {
-                tmp.append("%u");
-                if (c <= 0xfff)
-                {
-                    // issue#I49JU8@Gitee
-                    tmp.append("0");
-                }
-                tmp.append(Integer.toString(c, 16));
+                buffer.append(c);
             }
         }
-        return tmp.toString();
+        return buffer.toString();
     }
 
     /**
@@ -156,12 +145,11 @@ public class EscapeUtil
     public static void main(String[] args)
     {
         String html = "<script>alert(1);</script>";
-        String escape = EscapeUtil.escape(html);
         // String html = "<scr<script>ipt>alert(\"XSS\")</scr<script>ipt>";
         // String html = "<123";
         // String html = "123>";
-        System.out.println("clean: " + EscapeUtil.clean(html));
-        System.out.println("escape: " + escape);
-        System.out.println("unescape: " + EscapeUtil.unescape(escape));
+        System.out.println(EscapeUtil.clean(html));
+        System.out.println(EscapeUtil.escape(html));
+        System.out.println(EscapeUtil.unescape(html));
     }
 }

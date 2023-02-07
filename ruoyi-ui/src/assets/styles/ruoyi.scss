@@ -37,7 +37,7 @@
 .mb10 {
 	margin-bottom: 10px;
 }
-.ml10 {
+.ml0 {
 	margin-left: 10px;
 }
 .mt20 {
@@ -49,7 +49,7 @@
 .mb20 {
 	margin-bottom: 20px;
 }
-.ml20 {
+.m20 {
 	margin-left: 20px;
 }
 
@@ -60,19 +60,8 @@
 	color: inherit;
 }
 
-.el-message-box__status + .el-message-box__message{
-    word-break: break-word;
-}
-
-.el-dialog:not(.is-fullscreen) {
+.el-dialog:not(.is-fullscreen){
 	margin-top: 6vh !important;
-}
-
-.el-dialog__wrapper.scrollbar .el-dialog .el-dialog__body {
-    overflow: auto;
-	overflow-x: hidden;
-	max-height: 70vh;
-	padding: 10px 20px 0;
 }
 
 .el-table {
@@ -139,8 +128,9 @@
 }
 
 /** 表格更多操作下拉样式 */
-.el-table .el-dropdown-link,.el-table .el-dropdown-selfdefine {
+.el-table .el-dropdown-link {
 	cursor: pointer;
+	color: #1890ff;
 	margin-left: 5px;
 }
 
@@ -253,10 +243,9 @@
 }
 
 .avatar-upload-preview {
-	position: relative;
+	position: absolute;
 	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+	transform: translate(50%, -50%);
 	width: 200px;
 	height: 200px;
 	border-radius: 50%;

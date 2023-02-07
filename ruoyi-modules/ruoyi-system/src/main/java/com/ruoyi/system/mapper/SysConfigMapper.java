@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+
 import com.ruoyi.system.domain.SysConfig;
 
 /**
@@ -17,14 +18,6 @@ public interface SysConfigMapper
      * @return 参数配置信息
      */
     public SysConfig selectConfig(SysConfig config);
-
-    /**
-     * 通过ID查询配置
-     * 
-     * @param configId 参数ID
-     * @return 参数配置信息
-     */
-    public SysConfig selectConfigById(Long configId);
 
     /**
      * 查询参数配置列表

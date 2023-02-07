@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * 验证码获取
- *
+ * 
  * @author ruoyi
  */
 @Component
@@ -30,7 +30,7 @@ public class ValidateCodeHandler implements HandlerFunction<ServerResponse>
         AjaxResult ajax;
         try
         {
-            ajax = validateCodeService.createCaptcha();
+            ajax = validateCodeService.createCapcha();
         }
         catch (CaptchaException | IOException e)
         {

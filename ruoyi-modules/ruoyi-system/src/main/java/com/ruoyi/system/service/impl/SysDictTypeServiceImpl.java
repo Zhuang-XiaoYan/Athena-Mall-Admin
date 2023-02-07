@@ -1,22 +1,19 @@
 package com.ruoyi.system.service.impl;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.common.core.constant.UserConstants;
-import com.ruoyi.common.core.exception.ServiceException;
+import com.ruoyi.common.core.exception.CustomException;
 import com.ruoyi.common.core.utils.StringUtils;
-import com.ruoyi.common.security.utils.DictUtils;
-import com.ruoyi.system.api.domain.SysDictData;
-import com.ruoyi.system.api.domain.SysDictType;
+import com.ruoyi.system.domain.SysDictData;
+import com.ruoyi.system.domain.SysDictType;
 import com.ruoyi.system.mapper.SysDictDataMapper;
 import com.ruoyi.system.mapper.SysDictTypeMapper;
 import com.ruoyi.system.service.ISysDictTypeService;
+import com.ruoyi.system.utils.DictUtils;
 
 /**
  * 字典 业务层处理
@@ -115,6 +112,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
      * 批量删除字典类型信息
      * 
      * @param dictIds 需要删除的字典ID
+     * @return 结果
      */
     @Override
     public void deleteDictTypeByIds(Long[] dictIds)
@@ -124,7 +122,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
             SysDictType dictType = selectDictTypeById(dictId);
             if (dictDataMapper.countDictDataByType(dictType.getDictType()) > 0)
             {
-                throw new ServiceException(String.format("%1$s已分配,不能删除", dictType.getDictName()));
+                throw new CustomException(String.format("%1$s已分配,不能删除", dictType.getDictName()));
             }
             dictTypeMapper.deleteDictTypeById(dictId);
             DictUtils.removeDictCache(dictType.getDictType());
@@ -134,22 +132,19 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
     /**
      * 加载字典缓存数据
      */
-    @Override
     public void loadingDictCache()
     {
-        SysDictData dictData = new SysDictData();
-        dictData.setStatus("0");
-        Map<String, List<SysDictData>> dictDataMap = dictDataMapper.selectDictDataList(dictData).stream().collect(Collectors.groupingBy(SysDictData::getDictType));
-        for (Map.Entry<String, List<SysDictData>> entry : dictDataMap.entrySet())
+        List<SysDictType> dictTypeList = dictTypeMapper.selectDictTypeAll();
+        for (SysDictType dictType : dictTypeList)
         {
-            DictUtils.setDictCache(entry.getKey(), entry.getValue().stream().sorted(Comparator.comparing(SysDictData::getDictSort)).collect(Collectors.toList()));
+            List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(dictType.getDictType());
+            DictUtils.setDictCache(dictType.getDictType(), dictDatas);
         }
     }
 
     /**
      * 清空字典缓存数据
      */
-    @Override
     public void clearDictCache()
     {
         DictUtils.clearDictCache();
@@ -158,7 +153,6 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
     /**
      * 重置字典缓存数据
      */
-    @Override
     public void resetDictCache()
     {
         clearDictCache();
@@ -189,7 +183,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int updateDictType(SysDictType dict)
     {
         SysDictType oldDict = dictTypeMapper.selectDictTypeById(dict.getDictId());

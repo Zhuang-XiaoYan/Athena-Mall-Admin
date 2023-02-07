@@ -2,21 +2,16 @@ package com.ruoyi.system.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import com.ruoyi.common.core.constant.UserConstants;
-import com.ruoyi.common.core.exception.ServiceException;
-import com.ruoyi.common.core.utils.SpringUtils;
+import com.ruoyi.common.core.exception.CustomException;
+import com.ruoyi.common.core.utils.SecurityUtils;
 import com.ruoyi.common.core.utils.StringUtils;
-import com.ruoyi.common.core.utils.bean.BeanValidators;
 import com.ruoyi.common.datascope.annotation.DataScope;
-import com.ruoyi.common.security.utils.SecurityUtils;
 import com.ruoyi.system.api.domain.SysRole;
 import com.ruoyi.system.api.domain.SysUser;
 import com.ruoyi.system.domain.SysPost;
@@ -57,9 +52,6 @@ public class SysUserServiceImpl implements ISysUserService
 
     @Autowired
     private ISysConfigService configService;
-
-    @Autowired
-    protected Validator validator;
 
     /**
      * 根据条件分页查询用户列表
@@ -134,11 +126,16 @@ public class SysUserServiceImpl implements ISysUserService
     public String selectUserRoleGroup(String userName)
     {
         List<SysRole> list = roleMapper.selectRolesByUserName(userName);
-        if (CollectionUtils.isEmpty(list))
+        StringBuffer idsStr = new StringBuffer();
+        for (SysRole role : list)
         {
-            return StringUtils.EMPTY;
+            idsStr.append(role.getRoleName()).append(",");
         }
-        return list.stream().map(SysRole::getRoleName).collect(Collectors.joining(","));
+        if (StringUtils.isNotEmpty(idsStr.toString()))
+        {
+            return idsStr.substring(0, idsStr.length() - 1);
+        }
+        return idsStr.toString();
     }
 
     /**
@@ -151,25 +148,29 @@ public class SysUserServiceImpl implements ISysUserService
     public String selectUserPostGroup(String userName)
     {
         List<SysPost> list = postMapper.selectPostsByUserName(userName);
-        if (CollectionUtils.isEmpty(list))
+        StringBuffer idsStr = new StringBuffer();
+        for (SysPost post : list)
         {
-            return StringUtils.EMPTY;
+            idsStr.append(post.getPostName()).append(",");
         }
-        return list.stream().map(SysPost::getPostName).collect(Collectors.joining(","));
+        if (StringUtils.isNotEmpty(idsStr.toString()))
+        {
+            return idsStr.substring(0, idsStr.length() - 1);
+        }
+        return idsStr.toString();
     }
 
     /**
      * 校验用户名称是否唯一
      * 
-     * @param user 用户信息
+     * @param userName 用户名称
      * @return 结果
      */
     @Override
-    public String checkUserNameUnique(SysUser user)
+    public String checkUserNameUnique(String userName)
     {
-        Long userId = StringUtils.isNull(user.getUserId()) ? -1L : user.getUserId();
-        SysUser info = userMapper.checkUserNameUnique(user.getUserName());
-        if (StringUtils.isNotNull(info) && info.getUserId().longValue() != userId.longValue())
+        int count = userMapper.checkUserNameUnique(userName);
+        if (count > 0)
         {
             return UserConstants.NOT_UNIQUE;
         }
@@ -177,7 +178,7 @@ public class SysUserServiceImpl implements ISysUserService
     }
 
     /**
-     * 校验手机号码是否唯一
+     * 校验用户名称是否唯一
      *
      * @param user 用户信息
      * @return
@@ -222,27 +223,7 @@ public class SysUserServiceImpl implements ISysUserService
     {
         if (StringUtils.isNotNull(user.getUserId()) && user.isAdmin())
         {
-            throw new ServiceException("不允许操作超级管理员用户");
-        }
-    }
-
-    /**
-     * 校验用户是否有数据权限
-     * 
-     * @param userId 用户id
-     */
-    @Override
-    public void checkUserDataScope(Long userId)
-    {
-        if (!SysUser.isAdmin(SecurityUtils.getUserId()))
-        {
-            SysUser user = new SysUser();
-            user.setUserId(userId);
-            List<SysUser> users = SpringUtils.getAopProxy(this).selectUserList(user);
-            if (StringUtils.isEmpty(users))
-            {
-                throw new ServiceException("没有权限访问用户数据！");
-            }
+            throw new CustomException("不允许操作超级管理员用户");
         }
     }
 
@@ -253,7 +234,7 @@ public class SysUserServiceImpl implements ISysUserService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int insertUser(SysUser user)
     {
         // 新增用户信息
@@ -271,7 +252,6 @@ public class SysUserServiceImpl implements ISysUserService
      * @param user 用户信息
      * @return 结果
      */
-    @Override
     public boolean registerUser(SysUser user)
     {
         return userMapper.insertUser(user) > 0;
@@ -284,7 +264,7 @@ public class SysUserServiceImpl implements ISysUserService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int updateUser(SysUser user)
     {
         Long userId = user.getUserId();
@@ -306,7 +286,7 @@ public class SysUserServiceImpl implements ISysUserService
      * @param roleIds 角色组
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void insertUserAuth(Long userId, Long[] roleIds)
     {
         userRoleMapper.deleteUserRoleByUserId(userId);
@@ -382,7 +362,23 @@ public class SysUserServiceImpl implements ISysUserService
      */
     public void insertUserRole(SysUser user)
     {
-        this.insertUserRole(user.getUserId(), user.getRoleIds());
+        Long[] roles = user.getRoleIds();
+        if (StringUtils.isNotNull(roles))
+        {
+            // 新增用户与角色管理
+            List<SysUserRole> list = new ArrayList<SysUserRole>();
+            for (Long roleId : roles)
+            {
+                SysUserRole ur = new SysUserRole();
+                ur.setUserId(user.getUserId());
+                ur.setRoleId(roleId);
+                list.add(ur);
+            }
+            if (list.size() > 0)
+            {
+                userRoleMapper.batchUserRole(list);
+            }
+        }
     }
 
     /**
@@ -393,7 +389,7 @@ public class SysUserServiceImpl implements ISysUserService
     public void insertUserPost(SysUser user)
     {
         Long[] posts = user.getPostIds();
-        if (StringUtils.isNotEmpty(posts))
+        if (StringUtils.isNotNull(posts))
         {
             // 新增用户与岗位管理
             List<SysUserPost> list = new ArrayList<SysUserPost>();
@@ -404,7 +400,10 @@ public class SysUserServiceImpl implements ISysUserService
                 up.setPostId(postId);
                 list.add(up);
             }
-            userPostMapper.batchUserPost(list);
+            if (list.size() > 0)
+            {
+                userPostMapper.batchUserPost(list);
+            }
         }
     }
 
@@ -416,7 +415,7 @@ public class SysUserServiceImpl implements ISysUserService
      */
     public void insertUserRole(Long userId, Long[] roleIds)
     {
-        if (StringUtils.isNotEmpty(roleIds))
+        if (StringUtils.isNotNull(roleIds))
         {
             // 新增用户与角色管理
             List<SysUserRole> list = new ArrayList<SysUserRole>();
@@ -427,7 +426,10 @@ public class SysUserServiceImpl implements ISysUserService
                 ur.setRoleId(roleId);
                 list.add(ur);
             }
-            userRoleMapper.batchUserRole(list);
+            if (list.size() > 0)
+            {
+                userRoleMapper.batchUserRole(list);
+            }
         }
     }
 
@@ -438,7 +440,7 @@ public class SysUserServiceImpl implements ISysUserService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int deleteUserById(Long userId)
     {
         // 删除用户与角色关联
@@ -455,13 +457,12 @@ public class SysUserServiceImpl implements ISysUserService
      * @return 结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public int deleteUserByIds(Long[] userIds)
     {
         for (Long userId : userIds)
         {
             checkUserAllowed(new SysUser(userId));
-            checkUserDataScope(userId);
         }
         // 删除用户与角色关联
         userRoleMapper.deleteUserRole(userIds);
@@ -483,7 +484,7 @@ public class SysUserServiceImpl implements ISysUserService
     {
         if (StringUtils.isNull(userList) || userList.size() == 0)
         {
-            throw new ServiceException("导入用户数据不能为空！");
+            throw new CustomException("导入用户数据不能为空！");
         }
         int successNum = 0;
         int failureNum = 0;
@@ -498,7 +499,6 @@ public class SysUserServiceImpl implements ISysUserService
                 SysUser u = userMapper.selectUserByUserName(user.getUserName());
                 if (StringUtils.isNull(u))
                 {
-                    BeanValidators.validateWithException(validator, user);
                     user.setPassword(SecurityUtils.encryptPassword(password));
                     user.setCreateBy(operName);
                     this.insertUser(user);
@@ -507,9 +507,6 @@ public class SysUserServiceImpl implements ISysUserService
                 }
                 else if (isUpdateSupport)
                 {
-                    BeanValidators.validateWithException(validator, user);
-                    checkUserAllowed(user);
-                    checkUserDataScope(user.getUserId());
                     user.setUpdateBy(operName);
                     this.updateUser(user);
                     successNum++;
@@ -532,7 +529,7 @@ public class SysUserServiceImpl implements ISysUserService
         if (failureNum > 0)
         {
             failureMsg.insert(0, "很抱歉，导入失败！共 " + failureNum + " 条数据格式不正确，错误如下：");
-            throw new ServiceException(failureMsg.toString());
+            throw new CustomException(failureMsg.toString());
         }
         else
         {

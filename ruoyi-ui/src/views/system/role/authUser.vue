@@ -1,11 +1,12 @@
 <template>
   <div class="app-container">
-     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch">
+     <el-form :model="queryParams" ref="queryForm" v-show="showSearch" :inline="true">
       <el-form-item label="用户名称" prop="userName">
         <el-input
           v-model="queryParams.userName"
           placeholder="请输入用户名称"
           clearable
+          size="small"
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
@@ -15,6 +16,7 @@
           v-model="queryParams.phonenumber"
           placeholder="请输入手机号码"
           clearable
+          size="small"
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
@@ -67,7 +69,7 @@
       <el-table-column label="手机" prop="phonenumber" :show-overflow-tooltip="true" />
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
+          <dict-tag :options="statusOptions" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
@@ -105,7 +107,6 @@ import selectUser from "./selectUser";
 
 export default {
   name: "AuthUser",
-  dicts: ['sys_normal_disable'],
   components: { selectUser },
   data() {
     return {
@@ -121,6 +122,8 @@ export default {
       total: 0,
       // 用户表格数据
       userList: [],
+      // 状态数据字典
+      statusOptions: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -136,6 +139,9 @@ export default {
     if (roleId) {
       this.queryParams.roleId = roleId;
       this.getList();
+      this.getDicts("sys_normal_disable").then(response => {
+        this.statusOptions = response.data;
+      });
     }
   },
   methods: {
@@ -151,8 +157,8 @@ export default {
     },
     // 返回按钮
     handleClose() {
-      const obj = { path: "/system/role" };
-      this.$tab.closeOpenPage(obj);
+      this.$store.dispatch("tagsView/delView", this.$route);
+      this.$router.push({ path: "/system/role" });
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -176,22 +182,30 @@ export default {
     /** 取消授权按钮操作 */
     cancelAuthUser(row) {
       const roleId = this.queryParams.roleId;
-      this.$modal.confirm('确认要取消该用户"' + row.userName + '"角色吗？').then(function() {
+      this.$confirm('确认要取消该用户"' + row.userName + '"角色吗？', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function() {
         return authUserCancel({ userId: row.userId, roleId: roleId });
       }).then(() => {
         this.getList();
-        this.$modal.msgSuccess("取消授权成功");
+        this.msgSuccess("取消授权成功");
       }).catch(() => {});
     },
     /** 批量取消授权按钮操作 */
     cancelAuthUserAll(row) {
       const roleId = this.queryParams.roleId;
       const userIds = this.userIds.join(",");
-      this.$modal.confirm('是否取消选中用户授权数据项？').then(function() {
-        return authUserCancelAll({ roleId: roleId, userIds: userIds });
+      this.$confirm('是否取消选中用户授权数据项?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+      }).then(() => {
+          return authUserCancelAll({ roleId: roleId, userIds: userIds });
       }).then(() => {
         this.getList();
-        this.$modal.msgSuccess("取消授权成功");
+        this.msgSuccess("取消授权成功");
       }).catch(() => {});
     }
   }

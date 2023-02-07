@@ -7,15 +7,12 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.common.core.constant.UserConstants;
-import com.ruoyi.common.core.exception.ServiceException;
+import com.ruoyi.common.core.exception.CustomException;
 import com.ruoyi.common.core.text.Convert;
-import com.ruoyi.common.core.utils.SpringUtils;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.datascope.annotation.DataScope;
-import com.ruoyi.common.security.utils.SecurityUtils;
 import com.ruoyi.system.api.domain.SysDept;
 import com.ruoyi.system.api.domain.SysRole;
-import com.ruoyi.system.api.domain.SysUser;
 import com.ruoyi.system.domain.vo.TreeSelect;
 import com.ruoyi.system.mapper.SysDeptMapper;
 import com.ruoyi.system.mapper.SysRoleMapper;
@@ -49,19 +46,6 @@ public class SysDeptServiceImpl implements ISysDeptService
     }
 
     /**
-     * 查询部门树结构信息
-     * 
-     * @param dept 部门信息
-     * @return 部门树信息集合
-     */
-    @Override
-    public List<TreeSelect> selectDeptTreeList(SysDept dept)
-    {
-        List<SysDept> depts = SpringUtils.getAopProxy(this).selectDeptList(dept);
-        return buildDeptTreeSelect(depts);
-    }
-
-    /**
      * 构建前端所需要树结构
      * 
      * @param depts 部门列表
@@ -71,9 +55,14 @@ public class SysDeptServiceImpl implements ISysDeptService
     public List<SysDept> buildDeptTree(List<SysDept> depts)
     {
         List<SysDept> returnList = new ArrayList<SysDept>();
-        List<Long> tempList = depts.stream().map(SysDept::getDeptId).collect(Collectors.toList());
+        List<Long> tempList = new ArrayList<Long>();
         for (SysDept dept : depts)
         {
+            tempList.add(dept.getDeptId());
+        }
+        for (Iterator<SysDept> iterator = depts.iterator(); iterator.hasNext();)
+        {
+            SysDept dept = (SysDept) iterator.next();
             // 如果是顶级节点, 遍历该父节点的所有子节点
             if (!tempList.contains(dept.getParentId()))
             {
@@ -108,7 +97,7 @@ public class SysDeptServiceImpl implements ISysDeptService
      * @return 选中部门列表
      */
     @Override
-    public List<Long> selectDeptListByRoleId(Long roleId)
+    public List<Integer> selectDeptListByRoleId(Long roleId)
     {
         SysRole role = roleMapper.selectRoleById(roleId);
         return deptMapper.selectDeptListByRoleId(roleId, role.isDeptCheckStrictly());
@@ -148,7 +137,7 @@ public class SysDeptServiceImpl implements ISysDeptService
     public boolean hasChildByDeptId(Long deptId)
     {
         int result = deptMapper.hasChildByDeptId(deptId);
-        return result > 0;
+        return result > 0 ? true : false;
     }
 
     /**
@@ -161,7 +150,7 @@ public class SysDeptServiceImpl implements ISysDeptService
     public boolean checkDeptExistUser(Long deptId)
     {
         int result = deptMapper.checkDeptExistUser(deptId);
-        return result > 0;
+        return result > 0 ? true : false;
     }
 
     /**
@@ -183,26 +172,6 @@ public class SysDeptServiceImpl implements ISysDeptService
     }
 
     /**
-     * 校验部门是否有数据权限
-     * 
-     * @param deptId 部门id
-     */
-    @Override
-    public void checkDeptDataScope(Long deptId)
-    {
-        if (!SysUser.isAdmin(SecurityUtils.getUserId()))
-        {
-            SysDept dept = new SysDept();
-            dept.setDeptId(deptId);
-            List<SysDept> depts = SpringUtils.getAopProxy(this).selectDeptList(dept);
-            if (StringUtils.isEmpty(depts))
-            {
-                throw new ServiceException("没有权限访问部门数据！");
-            }
-        }
-    }
-
-    /**
      * 新增保存部门信息
      * 
      * @param dept 部门信息
@@ -215,7 +184,7 @@ public class SysDeptServiceImpl implements ISysDeptService
         // 如果父节点不为正常状态,则不允许新增子节点
         if (!UserConstants.DEPT_NORMAL.equals(info.getStatus()))
         {
-            throw new ServiceException("部门停用，不允许新增");
+            throw new CustomException("部门停用，不允许新增");
         }
         dept.setAncestors(info.getAncestors() + "," + dept.getParentId());
         return deptMapper.insertDept(dept);

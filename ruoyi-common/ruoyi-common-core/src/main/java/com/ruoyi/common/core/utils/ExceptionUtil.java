@@ -18,7 +18,8 @@ public class ExceptionUtil
     {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw, true));
-        return sw.toString();
+        String str = sw.toString();
+        return str;
     }
 
     public static String getRootErrorMessage(Exception e)

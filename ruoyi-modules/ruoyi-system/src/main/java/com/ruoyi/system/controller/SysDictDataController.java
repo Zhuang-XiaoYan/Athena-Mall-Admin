@@ -1,5 +1,6 @@
 package com.ruoyi.system.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.ruoyi.common.core.utils.SecurityUtils;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.core.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.web.controller.BaseController;
@@ -20,9 +22,8 @@ import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.core.web.page.TableDataInfo;
 import com.ruoyi.common.log.annotation.Log;
 import com.ruoyi.common.log.enums.BusinessType;
-import com.ruoyi.common.security.annotation.RequiresPermissions;
-import com.ruoyi.common.security.utils.SecurityUtils;
-import com.ruoyi.system.api.domain.SysDictData;
+import com.ruoyi.common.security.annotation.PreAuthorize;
+import com.ruoyi.system.domain.SysDictData;
 import com.ruoyi.system.service.ISysDictDataService;
 import com.ruoyi.system.service.ISysDictTypeService;
 
@@ -41,7 +42,7 @@ public class SysDictDataController extends BaseController
     @Autowired
     private ISysDictTypeService dictTypeService;
 
-    @RequiresPermissions("system:dict:list")
+    @PreAuthorize(hasPermi = "system:dict:list")
     @GetMapping("/list")
     public TableDataInfo list(SysDictData dictData)
     {
@@ -51,9 +52,9 @@ public class SysDictDataController extends BaseController
     }
 
     @Log(title = "字典数据", businessType = BusinessType.EXPORT)
-    @RequiresPermissions("system:dict:export")
+    @PreAuthorize(hasPermi = "system:dict:export")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysDictData dictData)
+    public void export(HttpServletResponse response, SysDictData dictData) throws IOException
     {
         List<SysDictData> list = dictDataService.selectDictDataList(dictData);
         ExcelUtil<SysDictData> util = new ExcelUtil<SysDictData>(SysDictData.class);
@@ -63,11 +64,11 @@ public class SysDictDataController extends BaseController
     /**
      * 查询字典数据详细
      */
-    @RequiresPermissions("system:dict:query")
+    @PreAuthorize(hasPermi = "system:dict:query")
     @GetMapping(value = "/{dictCode}")
     public AjaxResult getInfo(@PathVariable Long dictCode)
     {
-        return success(dictDataService.selectDictDataById(dictCode));
+        return AjaxResult.success(dictDataService.selectDictDataById(dictCode));
     }
 
     /**
@@ -81,13 +82,13 @@ public class SysDictDataController extends BaseController
         {
             data = new ArrayList<SysDictData>();
         }
-        return success(data);
+        return AjaxResult.success(data);
     }
 
     /**
      * 新增字典类型
      */
-    @RequiresPermissions("system:dict:add")
+    @PreAuthorize(hasPermi = "system:dict:add")
     @Log(title = "字典数据", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysDictData dict)
@@ -99,7 +100,7 @@ public class SysDictDataController extends BaseController
     /**
      * 修改保存字典类型
      */
-    @RequiresPermissions("system:dict:edit")
+    @PreAuthorize(hasPermi = "system:dict:edit")
     @Log(title = "字典数据", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysDictData dict)
@@ -111,7 +112,7 @@ public class SysDictDataController extends BaseController
     /**
      * 删除字典类型
      */
-    @RequiresPermissions("system:dict:remove")
+    @PreAuthorize(hasPermi = "system:dict:remove")
     @Log(title = "字典类型", businessType = BusinessType.DELETE)
     @DeleteMapping("/{dictCodes}")
     public AjaxResult remove(@PathVariable Long[] dictCodes)

@@ -3,10 +3,10 @@ package com.ruoyi.system.domain;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
 import com.ruoyi.common.core.web.domain.BaseEntity;
 
 /**
@@ -31,16 +31,13 @@ public class SysMenu extends BaseEntity
     private Long parentId;
 
     /** 显示顺序 */
-    private Integer orderNum;
+    private String orderNum;
 
     /** 路由地址 */
     private String path;
 
     /** 组件路径 */
     private String component;
-
-    /** 路由参数 */
-    private String query;
 
     /** 是否为外链（0是 1否） */
     private String isFrame;
@@ -54,7 +51,7 @@ public class SysMenu extends BaseEntity
     /** 显示状态（0显示 1隐藏） */
     private String visible;
     
-    /** 菜单状态（0正常 1停用） */
+    /** 菜单状态（0显示 1隐藏） */
     private String status;
 
     /** 权限字符串 */
@@ -108,13 +105,13 @@ public class SysMenu extends BaseEntity
         this.parentId = parentId;
     }
 
-    @NotNull(message = "显示顺序不能为空")
-    public Integer getOrderNum()
+    @NotBlank(message = "显示顺序不能为空")
+    public String getOrderNum()
     {
         return orderNum;
     }
 
-    public void setOrderNum(Integer orderNum)
+    public void setOrderNum(String orderNum)
     {
         this.orderNum = orderNum;
     }
@@ -139,16 +136,6 @@ public class SysMenu extends BaseEntity
     public void setComponent(String component)
     {
         this.component = component;
-    }
-
-    public String getQuery()
-    {
-        return query;
-    }
-
-    public void setQuery(String query)
-    {
-        this.query = query;
     }
 
     public String getIsFrame()

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import { parseStrEmpty } from "@/utils/ruoyi";
+import { praseStrEmpty } from "@/utils/ruoyi";
 
 // 查询用户列表
 export function listUser(query) {
@@ -13,7 +13,7 @@ export function listUser(query) {
 // 查询用户详细
 export function getUser(userId) {
   return request({
-    url: '/system/user/' + parseStrEmpty(userId),
+    url: '/system/user/' + praseStrEmpty(userId),
     method: 'get'
   })
 }
@@ -123,13 +123,5 @@ export function updateAuthRole(data) {
     url: '/system/user/authRole',
     method: 'put',
     params: data
-  })
-}
-
-// 查询部门下拉树结构
-export function deptTreeSelect() {
-  return request({
-    url: '/system/user/deptTree',
-    method: 'get'
   })
 }

@@ -313,7 +313,7 @@ public class Convert
      * 转换为Integer数组<br>
      * 
      * @param split 分隔符
-     * @param str 被转换的值
+     * @param split 被转换的值
      * @return 结果
      */
     public static Integer[] toIntArray(String split, String str)
@@ -370,7 +370,7 @@ public class Convert
      * 转换为String数组<br>
      * 
      * @param split 分隔符
-     * @param str 被转换的值
+     * @param split 被转换的值
      * @return 结果
      */
     public static String[] toStrArray(String split, String str)
@@ -561,12 +561,17 @@ public class Convert
         switch (valueStr)
         {
             case "true":
-            case "yes":
-            case "ok":
-            case "1":
                 return true;
             case "false":
+                return false;
+            case "yes":
+                return true;
+            case "ok":
+                return true;
             case "no":
+                return false;
+            case "1":
+                return true;
             case "0":
                 return false;
             default:
@@ -712,7 +717,7 @@ public class Convert
         }
         if (value instanceof Double)
         {
-            return BigDecimal.valueOf((Double) value);
+            return new BigDecimal((Double) value);
         }
         if (value instanceof Integer)
         {
@@ -902,7 +907,7 @@ public class Convert
      */
     public static String toSBC(String input, Set<Character> notConvertSet)
     {
-        char[] c = input.toCharArray();
+        char c[] = input.toCharArray();
         for (int i = 0; i < c.length; i++)
         {
             if (null != notConvertSet && notConvertSet.contains(c[i]))
@@ -944,7 +949,7 @@ public class Convert
      */
     public static String toDBC(String text, Set<Character> notConvertSet)
     {
-        char[] c = text.toCharArray();
+        char c[] = text.toCharArray();
         for (int i = 0; i < c.length; i++)
         {
             if (null != notConvertSet && notConvertSet.contains(c[i]))
@@ -962,7 +967,9 @@ public class Convert
                 c[i] = (char) (c[i] - 65248);
             }
         }
-        return new String(c);
+        String returnString = new String(c);
+
+        return returnString;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+
 import com.ruoyi.system.domain.SysConfig;
 
 /**
@@ -54,6 +55,7 @@ public interface ISysConfigService
      * 批量删除参数信息
      * 
      * @param configIds 需要删除的参数ID
+     * @return 结果
      */
     public void deleteConfigByIds(Long[] configIds);
 

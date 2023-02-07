@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+
 import com.ruoyi.system.domain.SysPost;
 
 /**
@@ -39,7 +40,7 @@ public interface SysPostMapper
      * @param userId 用户ID
      * @return 选中岗位ID列表
      */
-    public List<Long> selectPostListByUserId(Long userId);
+    public List<Integer> selectPostListByUserId(Long userId);
 
     /**
      * 查询用户所属岗位组

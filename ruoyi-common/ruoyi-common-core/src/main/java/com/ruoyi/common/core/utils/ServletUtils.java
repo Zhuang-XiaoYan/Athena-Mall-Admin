@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -17,11 +15,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.core.constant.Constants;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.text.Convert;
@@ -64,50 +61,6 @@ public class ServletUtils
     public static Integer getParameterToInt(String name, Integer defaultValue)
     {
         return Convert.toInt(getRequest().getParameter(name), defaultValue);
-    }
-
-    /**
-     * 获取Boolean参数
-     */
-    public static Boolean getParameterToBool(String name)
-    {
-        return Convert.toBool(getRequest().getParameter(name));
-    }
-
-    /**
-     * 获取Boolean参数
-     */
-    public static Boolean getParameterToBool(String name, Boolean defaultValue)
-    {
-        return Convert.toBool(getRequest().getParameter(name), defaultValue);
-    }
-
-    /**
-     * 获得所有请求参数
-     *
-     * @param request 请求对象{@link ServletRequest}
-     * @return Map
-     */
-    public static Map<String, String[]> getParams(ServletRequest request)
-    {
-        final Map<String, String[]> map = request.getParameterMap();
-        return Collections.unmodifiableMap(map);
-    }
-
-    /**
-     * 获得所有请求参数
-     *
-     * @param request 请求对象{@link ServletRequest}
-     * @return Map
-     */
-    public static Map<String, String> getParamMap(ServletRequest request)
-    {
-        Map<String, String> params = new HashMap<>();
-        for (Map.Entry<String, String[]> entry : getParams(request).entrySet())
-        {
-            params.put(entry.getKey(), StringUtils.join(entry.getValue(), ","));
-        }
-        return params;
     }
 
     /**
@@ -161,19 +114,9 @@ public class ServletUtils
         }
     }
 
-    public static String getHeader(HttpServletRequest request, String name)
-    {
-        String value = request.getHeader(name);
-        if (StringUtils.isEmpty(value))
-        {
-            return StringUtils.EMPTY;
-        }
-        return urlDecode(value);
-    }
-
     public static Map<String, String> getHeaders(HttpServletRequest request)
     {
-        Map<String, String> map = new LinkedCaseInsensitiveMap<>();
+        Map<String, String> map = new LinkedHashMap<>();
         Enumeration<String> enumeration = request.getHeaderNames();
         if (enumeration != null)
         {
@@ -192,8 +135,9 @@ public class ServletUtils
      * 
      * @param response 渲染对象
      * @param string 待渲染的字符串
+     * @return null
      */
-    public static void renderString(HttpServletResponse response, String string)
+    public static String renderString(HttpServletResponse response, String string)
     {
         try
         {
@@ -206,6 +150,7 @@ public class ServletUtils
         {
             e.printStackTrace();
         }
+        return null;
     }
 
     /**
@@ -216,13 +161,13 @@ public class ServletUtils
     public static boolean isAjaxRequest(HttpServletRequest request)
     {
         String accept = request.getHeader("accept");
-        if (accept != null && accept.contains("application/json"))
+        if (accept != null && accept.indexOf("application/json") != -1)
         {
             return true;
         }
 
         String xRequestedWith = request.getHeader("X-Requested-With");
-        if (xRequestedWith != null && xRequestedWith.contains("XMLHttpRequest"))
+        if (xRequestedWith != null && xRequestedWith.indexOf("XMLHttpRequest") != -1)
         {
             return true;
         }
@@ -234,7 +179,11 @@ public class ServletUtils
         }
 
         String ajax = request.getParameter("__ajax");
-        return StringUtils.inStringIgnoreCase(ajax, "json", "xml");
+        if (StringUtils.inStringIgnoreCase(ajax, "json", "xml"))
+        {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -251,7 +200,7 @@ public class ServletUtils
         }
         catch (UnsupportedEncodingException e)
         {
-            return StringUtils.EMPTY;
+            return "";
         }
     }
 
@@ -269,7 +218,7 @@ public class ServletUtils
         }
         catch (UnsupportedEncodingException e)
         {
-            return StringUtils.EMPTY;
+            return "";
         }
     }
 
@@ -327,7 +276,7 @@ public class ServletUtils
         response.setStatusCode(status);
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, contentType);
         R<?> result = R.fail(code, value.toString());
-        DataBuffer dataBuffer = response.bufferFactory().wrap(JSON.toJSONString(result).getBytes());
+        DataBuffer dataBuffer = response.bufferFactory().wrap(JSONObject.toJSONString(result).getBytes());
         return response.writeWith(Mono.just(dataBuffer));
     }
 }

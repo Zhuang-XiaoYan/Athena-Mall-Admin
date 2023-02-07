@@ -1,5 +1,6 @@
 package com.ruoyi.system.controller;
 
+import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.ruoyi.common.core.constant.UserConstants;
+import com.ruoyi.common.core.utils.SecurityUtils;
 import com.ruoyi.common.core.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.web.controller.BaseController;
 import com.ruoyi.common.core.web.domain.AjaxResult;
 import com.ruoyi.common.core.web.page.TableDataInfo;
 import com.ruoyi.common.log.annotation.Log;
 import com.ruoyi.common.log.enums.BusinessType;
-import com.ruoyi.common.security.annotation.RequiresPermissions;
-import com.ruoyi.common.security.utils.SecurityUtils;
-import com.ruoyi.system.api.domain.SysDictType;
+import com.ruoyi.common.security.annotation.PreAuthorize;
+import com.ruoyi.system.domain.SysDictType;
 import com.ruoyi.system.service.ISysDictTypeService;
 
 /**
@@ -36,7 +37,7 @@ public class SysDictTypeController extends BaseController
     @Autowired
     private ISysDictTypeService dictTypeService;
 
-    @RequiresPermissions("system:dict:list")
+    @PreAuthorize(hasPermi = "system:dict:list")
     @GetMapping("/list")
     public TableDataInfo list(SysDictType dictType)
     {
@@ -46,9 +47,9 @@ public class SysDictTypeController extends BaseController
     }
 
     @Log(title = "字典类型", businessType = BusinessType.EXPORT)
-    @RequiresPermissions("system:dict:export")
+    @PreAuthorize(hasPermi = "system:dict:export")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysDictType dictType)
+    public void export(HttpServletResponse response, SysDictType dictType) throws IOException
     {
         List<SysDictType> list = dictTypeService.selectDictTypeList(dictType);
         ExcelUtil<SysDictType> util = new ExcelUtil<SysDictType>(SysDictType.class);
@@ -58,24 +59,24 @@ public class SysDictTypeController extends BaseController
     /**
      * 查询字典类型详细
      */
-    @RequiresPermissions("system:dict:query")
+    @PreAuthorize(hasPermi = "system:dict:query")
     @GetMapping(value = "/{dictId}")
     public AjaxResult getInfo(@PathVariable Long dictId)
     {
-        return success(dictTypeService.selectDictTypeById(dictId));
+        return AjaxResult.success(dictTypeService.selectDictTypeById(dictId));
     }
 
     /**
      * 新增字典类型
      */
-    @RequiresPermissions("system:dict:add")
+    @PreAuthorize(hasPermi = "system:dict:add")
     @Log(title = "字典类型", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysDictType dict)
     {
         if (UserConstants.NOT_UNIQUE.equals(dictTypeService.checkDictTypeUnique(dict)))
         {
-            return error("新增字典'" + dict.getDictName() + "'失败，字典类型已存在");
+            return AjaxResult.error("新增字典'" + dict.getDictName() + "'失败，字典类型已存在");
         }
         dict.setCreateBy(SecurityUtils.getUsername());
         return toAjax(dictTypeService.insertDictType(dict));
@@ -84,14 +85,14 @@ public class SysDictTypeController extends BaseController
     /**
      * 修改字典类型
      */
-    @RequiresPermissions("system:dict:edit")
+    @PreAuthorize(hasPermi = "system:dict:edit")
     @Log(title = "字典类型", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysDictType dict)
     {
         if (UserConstants.NOT_UNIQUE.equals(dictTypeService.checkDictTypeUnique(dict)))
         {
-            return error("修改字典'" + dict.getDictName() + "'失败，字典类型已存在");
+            return AjaxResult.error("修改字典'" + dict.getDictName() + "'失败，字典类型已存在");
         }
         dict.setUpdateBy(SecurityUtils.getUsername());
         return toAjax(dictTypeService.updateDictType(dict));
@@ -100,7 +101,7 @@ public class SysDictTypeController extends BaseController
     /**
      * 删除字典类型
      */
-    @RequiresPermissions("system:dict:remove")
+    @PreAuthorize(hasPermi = "system:dict:remove")
     @Log(title = "字典类型", businessType = BusinessType.DELETE)
     @DeleteMapping("/{dictIds}")
     public AjaxResult remove(@PathVariable Long[] dictIds)
@@ -112,13 +113,13 @@ public class SysDictTypeController extends BaseController
     /**
      * 刷新字典缓存
      */
-    @RequiresPermissions("system:dict:remove")
+    @PreAuthorize(hasPermi = "system:dict:remove")
     @Log(title = "字典类型", businessType = BusinessType.CLEAN)
     @DeleteMapping("/refreshCache")
     public AjaxResult refreshCache()
     {
         dictTypeService.resetDictCache();
-        return success();
+        return AjaxResult.success();
     }
 
     /**
@@ -128,6 +129,6 @@ public class SysDictTypeController extends BaseController
     public AjaxResult optionselect()
     {
         List<SysDictType> dictTypes = dictTypeService.selectDictTypeAll();
-        return success(dictTypes);
+        return AjaxResult.success(dictTypes);
     }
 }

@@ -7,9 +7,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -42,14 +40,9 @@ public class XssFilter implements GlobalFilter, Ordered
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain)
     {
         ServerHttpRequest request = exchange.getRequest();
-        // xss开关未开启 或 通过nacos关闭，不过滤
-        if (!xss.getEnabled())
-        {
-            return chain.filter(exchange);
-        }
         // GET DELETE 不过滤
         HttpMethod method = request.getMethod();
-        if (method == null || method == HttpMethod.GET || method == HttpMethod.DELETE)
+        if (method == null || method.matches("GET") || method.matches("DELETE"))
         {
             return chain.filter(exchange);
         }
@@ -77,12 +70,10 @@ public class XssFilter implements GlobalFilter, Ordered
             public Flux<DataBuffer> getBody()
             {
                 Flux<DataBuffer> body = super.getBody();
-                return body.buffer().map(dataBuffers -> {
-                    DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
-                    DataBuffer join = dataBufferFactory.join(dataBuffers);
-                    byte[] content = new byte[join.readableByteCount()];
-                    join.read(content);
-                    DataBufferUtils.release(join);
+                return body.map(dataBuffer -> {
+                    byte[] content = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(content);
+                    DataBufferUtils.release(dataBuffer);
                     String bodyStr = new String(content, StandardCharsets.UTF_8);
                     // 防xss攻击过滤
                     bodyStr = EscapeUtil.clean(bodyStr);
@@ -113,7 +104,7 @@ public class XssFilter implements GlobalFilter, Ordered
     /**
      * 是否是Json请求
      * 
-     * @param exchange HTTP请求
+     * @param request
      */
     public boolean isJsonRequest(ServerWebExchange exchange)
     {

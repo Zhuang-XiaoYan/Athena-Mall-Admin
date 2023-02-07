@@ -18,7 +18,7 @@ import com.ruoyi.common.core.web.page.TableDataInfo;
 import com.ruoyi.common.log.annotation.Log;
 import com.ruoyi.common.log.enums.BusinessType;
 import com.ruoyi.common.redis.service.RedisService;
-import com.ruoyi.common.security.annotation.RequiresPermissions;
+import com.ruoyi.common.security.annotation.PreAuthorize;
 import com.ruoyi.system.api.model.LoginUser;
 import com.ruoyi.system.domain.SysUserOnline;
 import com.ruoyi.system.service.ISysUserOnlineService;
@@ -38,7 +38,7 @@ public class SysUserOnlineController extends BaseController
     @Autowired
     private RedisService redisService;
 
-    @RequiresPermissions("monitor:online:list")
+    @PreAuthorize(hasPermi = "monitor:online:list")
     @GetMapping("/list")
     public TableDataInfo list(String ipaddr, String userName)
     {
@@ -81,12 +81,12 @@ public class SysUserOnlineController extends BaseController
     /**
      * 强退用户
      */
-    @RequiresPermissions("monitor:online:forceLogout")
+    @PreAuthorize(hasPermi = "monitor:online:forceLogout")
     @Log(title = "在线用户", businessType = BusinessType.FORCE)
     @DeleteMapping("/{tokenId}")
     public AjaxResult forceLogout(@PathVariable String tokenId)
     {
         redisService.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
-        return success();
+        return AjaxResult.success();
     }
 }

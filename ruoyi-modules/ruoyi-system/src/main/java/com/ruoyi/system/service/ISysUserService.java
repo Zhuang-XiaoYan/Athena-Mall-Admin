@@ -69,10 +69,10 @@ public interface ISysUserService
     /**
      * 校验用户名称是否唯一
      * 
-     * @param user 用户信息
+     * @param userName 用户名称
      * @return 结果
      */
-    public String checkUserNameUnique(SysUser user);
+    public String checkUserNameUnique(String userName);
 
     /**
      * 校验手机号码是否唯一
@@ -98,13 +98,6 @@ public interface ISysUserService
     public void checkUserAllowed(SysUser user);
 
     /**
-     * 校验用户是否有数据权限
-     * 
-     * @param userId 用户id
-     */
-    public void checkUserDataScope(Long userId);
-
-    /**
      * 新增用户信息
      * 
      * @param user 用户信息
@@ -127,7 +120,7 @@ public interface ISysUserService
      * @return 结果
      */
     public int updateUser(SysUser user);
-
+    
     /**
      * 用户授权角色
      * 

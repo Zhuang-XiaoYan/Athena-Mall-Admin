@@ -20,21 +20,20 @@
             :expand-on-click-node="false"
             :filter-node-method="filterNode"
             ref="tree"
-            node-key="id"
             default-expand-all
-            highlight-current
             @node-click="handleNodeClick"
           />
         </div>
       </el-col>
       <!--用户数据-->
       <el-col :span="20" :xs="24">
-        <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+        <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
           <el-form-item label="用户名称" prop="userName">
             <el-input
               v-model="queryParams.userName"
               placeholder="请输入用户名称"
               clearable
+              size="small"
               style="width: 240px"
               @keyup.enter.native="handleQuery"
             />
@@ -44,6 +43,7 @@
               v-model="queryParams.phonenumber"
               placeholder="请输入手机号码"
               clearable
+              size="small"
               style="width: 240px"
               @keyup.enter.native="handleQuery"
             />
@@ -53,19 +53,21 @@
               v-model="queryParams.status"
               placeholder="用户状态"
               clearable
+              size="small"
               style="width: 240px"
             >
               <el-option
-                v-for="dict in dict.type.sys_normal_disable"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
+                v-for="dict in statusOptions"
+                :key="dict.dictValue"
+                :label="dict.dictLabel"
+                :value="dict.dictValue"
               />
             </el-select>
           </el-form-item>
           <el-form-item label="创建时间">
             <el-date-picker
               v-model="dateRange"
+              size="small"
               style="width: 240px"
               value-format="yyyy-MM-dd"
               type="daterange"
@@ -180,7 +182,9 @@
                 v-hasPermi="['system:user:remove']"
               >删除</el-button>
               <el-dropdown size="mini" @command="(command) => handleCommand(command, scope.row)" v-hasPermi="['system:user:resetPwd', 'system:user:edit']">
-                <el-button size="mini" type="text" icon="el-icon-d-arrow-right">更多</el-button>
+                <span class="el-dropdown-link">
+                  <i class="el-icon-d-arrow-right el-icon--right"></i>更多
+                </span>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="handleResetPwd" icon="el-icon-key"
                     v-hasPermi="['system:user:resetPwd']">重置密码</el-dropdown-item>
@@ -202,7 +206,7 @@
       </el-col>
     </el-row>
 
-    <!-- 添加或修改用户配置对话框 -->
+    <!-- 添加或修改参数配置对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
@@ -244,12 +248,12 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="用户性别">
-              <el-select v-model="form.sex" placeholder="请选择性别">
+              <el-select v-model="form.sex" placeholder="请选择">
                 <el-option
-                  v-for="dict in dict.type.sys_user_sex"
-                  :key="dict.value"
-                  :label="dict.label"
-                  :value="dict.value"
+                  v-for="dict in sexOptions"
+                  :key="dict.dictValue"
+                  :label="dict.dictLabel"
+                  :value="dict.dictValue"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -258,10 +262,10 @@
             <el-form-item label="状态">
               <el-radio-group v-model="form.status">
                 <el-radio
-                  v-for="dict in dict.type.sys_normal_disable"
-                  :key="dict.value"
-                  :label="dict.value"
-                >{{dict.label}}</el-radio>
+                  v-for="dict in statusOptions"
+                  :key="dict.dictValue"
+                  :label="dict.dictValue"
+                >{{dict.dictLabel}}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -269,7 +273,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="岗位">
-              <el-select v-model="form.postIds" multiple placeholder="请选择岗位">
+              <el-select v-model="form.postIds" multiple placeholder="请选择">
                 <el-option
                   v-for="item in postOptions"
                   :key="item.postId"
@@ -282,7 +286,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="角色">
-              <el-select v-model="form.roleIds" multiple placeholder="请选择角色">
+              <el-select v-model="form.roleIds" multiple placeholder="请选择">
                 <el-option
                   v-for="item in roleOptions"
                   :key="item.roleId"
@@ -341,14 +345,14 @@
 </template>
 
 <script>
-import { listUser, getUser, delUser, addUser, updateUser, resetUserPwd, changeUserStatus, deptTreeSelect } from "@/api/system/user";
+import { listUser, getUser, delUser, addUser, updateUser, resetUserPwd, changeUserStatus } from "@/api/system/user";
 import { getToken } from "@/utils/auth";
+import { treeselect } from "@/api/system/dept";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "User",
-  dicts: ['sys_normal_disable', 'sys_user_sex'],
   components: { Treeselect },
   data() {
     return {
@@ -378,6 +382,10 @@ export default {
       initPassword: undefined,
       // 日期范围
       dateRange: [],
+      // 状态数据字典
+      statusOptions: [],
+      // 性别状态字典
+      sexOptions: [],
       // 岗位选项
       postOptions: [],
       // 角色选项
@@ -425,8 +433,7 @@ export default {
       // 表单校验
       rules: {
         userName: [
-          { required: true, message: "用户名称不能为空", trigger: "blur" },
-          { min: 2, max: 20, message: '用户名称长度必须介于 2 和 20 之间', trigger: 'blur' }
+          { required: true, message: "用户名称不能为空", trigger: "blur" }
         ],
         nickName: [
           { required: true, message: "用户昵称不能为空", trigger: "blur" }
@@ -438,7 +445,7 @@ export default {
         email: [
           {
             type: "email",
-            message: "请输入正确的邮箱地址",
+            message: "'请输入正确的邮箱地址",
             trigger: ["blur", "change"]
           }
         ],
@@ -460,7 +467,13 @@ export default {
   },
   created() {
     this.getList();
-    this.getDeptTree();
+    this.getTreeselect();
+    this.getDicts("sys_normal_disable").then(response => {
+      this.statusOptions = response.data;
+    });
+    this.getDicts("sys_user_sex").then(response => {
+      this.sexOptions = response.data;
+    });
     this.getConfigKey("sys.user.initPassword").then(response => {
       this.initPassword = response.msg;
     });
@@ -477,8 +490,8 @@ export default {
       );
     },
     /** 查询部门下拉树结构 */
-    getDeptTree() {
-      deptTreeSelect().then(response => {
+    getTreeselect() {
+      treeselect().then(response => {
         this.deptOptions = response.data;
       });
     },
@@ -490,18 +503,22 @@ export default {
     // 节点单击事件
     handleNodeClick(data) {
       this.queryParams.deptId = data.id;
-      this.handleQuery();
+      this.getList();
     },
     // 用户状态修改
     handleStatusChange(row) {
       let text = row.status === "0" ? "启用" : "停用";
-      this.$modal.confirm('确认要"' + text + '""' + row.userName + '"用户吗？').then(function() {
-        return changeUserStatus(row.userId, row.status);
-      }).then(() => {
-        this.$modal.msgSuccess(text + "成功");
-      }).catch(function() {
-        row.status = row.status === "0" ? "1" : "0";
-      });
+      this.$confirm('确认要"' + text + '""' + row.userName + '"用户吗?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function() {
+          return changeUserStatus(row.userId, row.status);
+        }).then(() => {
+          this.msgSuccess(text + "成功");
+        }).catch(function() {
+          row.status = row.status === "0" ? "1" : "0";
+        });
     },
     // 取消按钮
     cancel() {
@@ -535,8 +552,6 @@ export default {
     resetQuery() {
       this.dateRange = [];
       this.resetForm("queryForm");
-      this.queryParams.deptId = undefined;
-      this.$refs.tree.setCurrentKey(null);
       this.handleQuery();
     },
     // 多选框选中数据
@@ -561,6 +576,7 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
+      this.getTreeselect();
       getUser().then(response => {
         this.postOptions = response.posts;
         this.roleOptions = response.roles;
@@ -572,13 +588,14 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
+      this.getTreeselect();
       const userId = row.userId || this.ids;
       getUser(userId).then(response => {
         this.form = response.data;
         this.postOptions = response.posts;
         this.roleOptions = response.roles;
-        this.$set(this.form, "postIds", response.postIds);
-        this.$set(this.form, "roleIds", response.roleIds);
+        this.form.postIds = response.postIds;
+        this.form.roleIds = response.roleIds;
         this.open = true;
         this.title = "修改用户";
         this.form.password = "";
@@ -591,10 +608,10 @@ export default {
         cancelButtonText: "取消",
         closeOnClickModal: false,
         inputPattern: /^.{5,20}$/,
-        inputErrorMessage: "用户密码长度必须介于 5 和 20 之间"
+        inputErrorMessage: "用户密码长度必须介于 5 和 20 之间",
       }).then(({ value }) => {
           resetUserPwd(row.userId, value).then(response => {
-            this.$modal.msgSuccess("修改成功，新密码是：" + value);
+            this.msgSuccess("修改成功，新密码是：" + value);
           });
         }).catch(() => {});
     },
@@ -609,13 +626,13 @@ export default {
         if (valid) {
           if (this.form.userId != undefined) {
             updateUser(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
+              this.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
             addUser(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
+              this.msgSuccess("新增成功");
               this.open = false;
               this.getList();
             });
@@ -626,12 +643,16 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const userIds = row.userId || this.ids;
-      this.$modal.confirm('是否确认删除用户编号为"' + userIds + '"的数据项？').then(function() {
-        return delUser(userIds);
-      }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
+      this.$confirm('是否确认删除用户编号为"' + userIds + '"的数据项?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function() {
+          return delUser(userIds);
+        }).then(() => {
+          this.getList();
+          this.msgSuccess("删除成功");
+        }).catch(() => {});
     },
     /** 导出按钮操作 */
     handleExport() {
@@ -647,7 +668,8 @@ export default {
     /** 下载模板操作 */
     importTemplate() {
       this.download('system/user/importTemplate', {
-      }, `user_template_${new Date().getTime()}.xlsx`)
+        ...this.queryParams
+      }, `user_${new Date().getTime()}.xlsx`)
     },
     // 文件上传中处理
     handleFileUploadProgress(event, file, fileList) {
@@ -658,7 +680,7 @@ export default {
       this.upload.open = false;
       this.upload.isUploading = false;
       this.$refs.upload.clearFiles();
-      this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", { dangerouslyUseHTMLString: true });
+      this.$alert(response.msg, "导入结果", { dangerouslyUseHTMLString: true });
       this.getList();
     },
     // 提交上传文件

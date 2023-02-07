@@ -1,6 +1,7 @@
 package com.ruoyi.common.core.utils.file;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -54,12 +55,13 @@ public class ImageUtils
     /**
      * 读取文件为字节数据
      * 
-     * @param url 地址
+     * @param key 地址
      * @return 字节数据
      */
     public static byte[] readFile(String url)
     {
         InputStream in = null;
+        ByteArrayOutputStream baos = null;
         try
         {
             // 网络地址
@@ -79,6 +81,7 @@ public class ImageUtils
         finally
         {
             IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(baos);
         }
     }
 }

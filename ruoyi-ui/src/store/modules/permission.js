@@ -1,8 +1,7 @@
-import auth from '@/plugins/auth'
-import router, { constantRoutes, dynamicRoutes } from '@/router'
+import { constantRoutes } from '@/router'
 import { getRouters } from '@/api/menu'
 import Layout from '@/layout/index'
-import ParentView from '@/components/ParentView'
+import ParentView from '@/components/ParentView';
 import InnerLink from '@/layout/components/InnerLink'
 
 const permission = {
@@ -22,7 +21,12 @@ const permission = {
       state.defaultRoutes = constantRoutes.concat(routes)
     },
     SET_TOPBAR_ROUTES: (state, routes) => {
-      state.topbarRouters = routes
+      // 顶部导航菜单默认添加统计报表栏指向首页
+      const index = [{
+        path: 'index',
+        meta: { title: '统计报表', icon: 'dashboard'}
+      }]
+      state.topbarRouters = routes.concat(index);
     },
     SET_SIDEBAR_ROUTERS: (state, routes) => {
       state.sidebarRouters = routes
@@ -38,9 +42,7 @@ const permission = {
           const rdata = JSON.parse(JSON.stringify(res.data))
           const sidebarRoutes = filterAsyncRouter(sdata)
           const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-          const asyncRoutes = filterDynamicRoutes(dynamicRoutes);
           rewriteRoutes.push({ path: '*', redirect: '/404', hidden: true })
-          router.addRoutes(asyncRoutes);
           commit('SET_ROUTES', rewriteRoutes)
           commit('SET_SIDEBAR_ROUTERS', constantRoutes.concat(sidebarRoutes))
           commit('SET_DEFAULT_ROUTES', sidebarRoutes)
@@ -84,7 +86,7 @@ function filterChildren(childrenMap, lastRouter = false) {
   var children = []
   childrenMap.forEach((el, index) => {
     if (el.children && el.children.length) {
-      if (el.component === 'ParentView' && !lastRouter) {
+      if (el.component === 'ParentView') {
         el.children.forEach(c => {
           c.path = el.path + '/' + c.path
           if (c.children && c.children.length) {
@@ -104,30 +106,8 @@ function filterChildren(childrenMap, lastRouter = false) {
   return children
 }
 
-// 动态路由遍历，验证是否具备权限
-export function filterDynamicRoutes(routes) {
-  const res = []
-  routes.forEach(route => {
-    if (route.permissions) {
-      if (auth.hasPermiOr(route.permissions)) {
-        res.push(route)
-      }
-    } else if (route.roles) {
-      if (auth.hasRoleOr(route.roles)) {
-        res.push(route)
-      }
-    }
-  })
-  return res
-}
-
-export const loadView = (view) => {
-  if (process.env.NODE_ENV === 'development') {
-    return (resolve) => require([`@/views/${view}`], resolve)
-  } else {
-    // 使用 import 实现生产环境的路由懒加载
-    return () => import(`@/views/${view}`)
-  }
+export const loadView = (view) => { // 路由懒加载
+  return (resolve) => require([`@/views/${view}`], resolve)
 }
 
 export default permission

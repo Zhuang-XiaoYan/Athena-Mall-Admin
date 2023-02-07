@@ -1,3 +1,4 @@
+import variables from '@/assets/styles/element-variables.scss'
 import defaultSettings from '@/settings'
 
 const { sideTheme, showSettings, topNav, tagsView, fixedHeader, sidebarLogo, dynamicTitle } = defaultSettings
@@ -5,10 +6,10 @@ const { sideTheme, showSettings, topNav, tagsView, fixedHeader, sidebarLogo, dyn
 const storageSetting = JSON.parse(localStorage.getItem('layout-setting')) || ''
 const state = {
   title: '',
-  theme: storageSetting.theme || '#409EFF',
+  theme: storageSetting.theme || variables.theme,
   sideTheme: storageSetting.sideTheme || sideTheme,
   showSettings: showSettings,
-  topNav: storageSetting.topNav === undefined ? topNav : storageSetting.topNav,
+  topNav:  storageSetting.topNav === undefined ? topNav : storageSetting.topNav,
   tagsView: storageSetting.tagsView === undefined ? tagsView : storageSetting.tagsView,
   fixedHeader: storageSetting.fixedHeader === undefined ? fixedHeader : storageSetting.fixedHeader,
   sidebarLogo: storageSetting.sidebarLogo === undefined ? sidebarLogo : storageSetting.sidebarLogo,

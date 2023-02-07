@@ -2,8 +2,8 @@
 spring:
   security:
     user:
-      name: ruoyi
-      password: 123456
+      name: redis_ip # 需要修改为生产环境的redis_ip
+      password: ruoyi
   boot:
     admin:
       ui:

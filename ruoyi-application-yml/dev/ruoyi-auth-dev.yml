@@ -1,0 +1,5 @@
+spring:
+  redis:
+    host: redis_ip # 需要修改为开发环境的redis_ip
+    port: 6379
+    password:

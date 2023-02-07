@@ -1,6 +1,6 @@
 spring:
   redis:
-    host: localhost
+    host: redis_ip # 需要修改为生产环境的redis_ip
     port: 6379
     password:
   cloud:

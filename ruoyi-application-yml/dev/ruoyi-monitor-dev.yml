@@ -1,0 +1,10 @@
+# spring
+spring:
+  security:
+    user:
+      name: redis_ip # 需要修改为开发环境的redis_ip
+      password: ruoyi
+  boot:
+    admin:
+      ui:
+        title: 若依服务状态监控

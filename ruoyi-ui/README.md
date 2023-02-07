@@ -1,4 +1,15 @@
-## 开发
+# ruoyi-ui
+
+# 摘要
+
+
+# ruoyi-ui的环境准备
+
+```
+- node16.9
+```
+
+# ruoyi-ui安装依赖文件
 
 ```bash
 # 克隆项目
@@ -17,9 +28,7 @@ npm install --registry=https://registry.npm.taobao.org
 npm run dev
 ```
 
-浏览器访问 http://localhost:80
-
-## 发布
+# ruoyi-ui 发布命令
 
 ```bash
 # 构建测试环境
@@ -28,3 +37,11 @@ npm run build:stage
 # 构建生产环境
 npm run build:prod
 ```
+
+# ruoyi-ui服务访问测试
+
+![img.png](img.png)
+
+浏览器访问 http://localhost（机器ip）:80
+
+# 博文参考

@@ -104,13 +104,9 @@ $ docker tag 37bb9c63c8b2 registry-vpc.cn-hangzhou.aliyuncs.com/acs/agent:0.7-df
 $ docker push registry-vpc.cn-hangzhou.aliyuncs.com/acs/agent:0.7-dfb6816
 ```
 
-# 三、Athena-RuoYi的images系统
+# 三、Athena-RuoYi的build系统
 
-# 四、Athena-RuoYi的CI系统
-
-# 五、Athena-RuoYi的CD系统
-
-# 六、Athena-RuoYi的Test系统
+# 四、Athena-RuoYi的CI/CD系统
 
 # 七、Athena-RuoYi的Kubenetes系统
 

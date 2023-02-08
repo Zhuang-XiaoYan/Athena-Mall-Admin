@@ -17,10 +17,12 @@
 
 # 一、Xmind
 
-## 1.1 ruoyi-architecture
+## 1.1 ruoyi-arch
+
 ![img.png](Xmind/images/ruoyi-architecture.png)
 
 ## 1.2 ruoyi-system 
+
 ![img.png](Xmind/images/ruoyi-system.png)
 
 # 二、Athena-RuoYi的微服务系统
@@ -51,7 +53,7 @@ com.ruoyi
 ├──pom.xml                                            // 公共依赖
 ```
 
-# 二、Athena-RuoYi 阿里云仓库
+# 三、Athena-RuoYi 阿里云仓库
 
 ```
 开发仓库：registry.cn-hangzhou.aliyuncs.com/athena-zhaungxiaoyan/athena-ruoyi-dev
@@ -104,13 +106,55 @@ $ docker tag 37bb9c63c8b2 registry-vpc.cn-hangzhou.aliyuncs.com/acs/agent:0.7-df
 $ docker push registry-vpc.cn-hangzhou.aliyuncs.com/acs/agent:0.7-dfb6816
 ```
 
-# 三、Athena-RuoYi的build系统
+# 四、Athena-RuoYi的build系统
 
-# 四、Athena-RuoYi的CI/CD系统
+```
+ruoyi-build-repo    
+├── ruoyi-auth-image                                  // ruoyi-auth-image build file
+├──────── jar                                              // ruoyi-auth-jar
+├──────── DockerFile                                       // ruoyi-auth-image DockerFile
+├──────── ruoyi-build-pipeline.groovy                      // ruoyi-auth-build-pipeline.groovy
+├── ruoyi-file-image                                  // ruoyi-file-image build file   
+├── ruoyi-gateway-image                               // ruoyi-gateway-image build file
+├── ruoyi-gen-image                                   // ruoyi-gen-image build file
+├── ruoyi-job-image                                   // ruoyi-job-image build file
+├── ruoyi-monitor-image                               // ruoyi-monitor-image build file
+├── ruoyi-mysql-image                                 // ruoyi-mysql-image build file
+├── ruoyi-nacos-image                                 // ruoyi-nacos-image build file
+├── ruoyi-nginx-image                                 // ruoyi-nginx-image build file
+├── ruoyi-redis-image                                 // ruoyi-redis-image build file
+├── ruoyi-system-image                                // ruoyi-system-image build file
+```
 
-# 七、Athena-RuoYi的Kubenetes系统
+![img.png](Xmind/images/ruoyi-build-atch.png)
 
-# 八、Athena-RuoYi的monitor监控系统
+# 五、Athena-RuoYi的CI/CD系统
+
+```
+ruoyi-cicd-repo   
+├── cdicd-image                                  // cdicd-image
+├── config                                       // config  
+├── jobs                                         // jobs
+├── pipelines                                    // pipelines
+├── resources                                    // resources
+├── src                                          // src
+├── vars                                         // vars
+├── .bumpversion.cfg                             // .bumpversion.cfg 
+├── bump-publish-version.sh                      // bump-publish-version.sh
+├── JenkinsFile                                  // JenkinsFile 
+├── pipeline-pruduct-jobs.groovy                 // pipeline-pruduct-jobs.groovy
+├── pipeline-test-jobs.groovy                    // pipeline-test-jobs.groovy
+```
+
+![img.png](Xmind/images/ruoyi-ci-arch.png)
+
+![img.png](Xmind/images/Athena-ruoyi-deploy.png)
+
+# 六、Athena-RuoYi的监控系统
+
+# 七、Athena-RuoYi的Kubenetes与Jenkins系统
+
+# 八、Athena-RuoYi的自动化部署系统
 
 
 # Project Summary

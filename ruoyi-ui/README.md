@@ -6,7 +6,8 @@
 # ruoyi-ui的环境准备
 
 ```
-- node16.9
+- node version:16.9
+- ruoyi-ui version 3.1.0
 ```
 
 # ruoyi-ui安装依赖文件

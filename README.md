@@ -160,6 +160,10 @@ ruoyi-cicd-repo
 
 # 七、Athena-RuoYi的Kubenetes与Jenkins系统
 
+## 7.1 k8s集群
+
+
+## 7.2 jenkins集群
 
 # 八、Athena-RuoYi的自动化部署系统
 
@@ -169,7 +173,7 @@ ruoyi-deploy-repo
 │       └── ruoyi-pruduct-deploy-pipeline.groovy          // ruoyi生产环境下的自动部署pipeline 
 ├── test                                              // 测试环境部署
 │       └── ruoyi-test-deploy-pipeline.groovy             // ruoyi测试环境下的自动部署pipeline
-├──Jenkins                                            // 公共依赖
+├──Jenkins                                            // JenkinsFile
 ├──README.md                                          // Athena-RuoYi的自动化部署系统说明
 ```
 

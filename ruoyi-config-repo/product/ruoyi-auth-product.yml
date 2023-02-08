@@ -1,0 +1,5 @@
+spring:
+  redis:
+    host: athena-redis-cluster.athenaruoyi-app # 需要修改为生产环境的redis_ip
+    port: 6379
+    password:

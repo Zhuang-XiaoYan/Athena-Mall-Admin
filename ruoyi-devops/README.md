@@ -2,7 +2,6 @@
 
 # 摘要
 
-
 # 一、Athena-RuoYi 大规模云部署步骤
 
 ## 1.0 生产环境的服务的自动部署
@@ -10,6 +9,12 @@
 ![](../ruoyi-devops/images/Athena-ruoyi-生产环境部署服务.drawio.png)
 
 ## 1.1 中间件的部署、伸缩设计
+
+### 1.1.1 mysql pipeline的自动部署
+
+### 1.1.2 naocs pipeline的自动部署
+
+### 1.1.3 redis pipeline的自动部署
 
 ## 1.2 微服务的镜像制作
 

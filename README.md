@@ -152,9 +152,26 @@ ruoyi-cicd-repo
 
 # 六、Athena-RuoYi的监控系统
 
+![img.png](Xmind/images/Promethes.png)
+
+![img.png](Xmind/images/Promethes-monitor.png)
+
+![img.png](Xmind/images/Grafana.png)
+
 # 七、Athena-RuoYi的Kubenetes与Jenkins系统
 
+
 # 八、Athena-RuoYi的自动化部署系统
+
+```
+ruoyi-deploy-repo     
+├── product                                           // 生产环境部署
+│       └── ruoyi-pruduct-deploy-pipeline.groovy          // ruoyi生产环境下的自动部署pipeline 
+├── test                                              // 测试环境部署
+│       └── ruoyi-test-deploy-pipeline.groovy             // ruoyi测试环境下的自动部署pipeline
+├──Jenkins                                            // 公共依赖
+├──README.md                                          // Athena-RuoYi的自动化部署系统说明
+```
 
 
 # Project Summary

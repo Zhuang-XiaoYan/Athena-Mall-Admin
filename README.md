@@ -145,6 +145,9 @@ ruoyi-cicd-repo
 ├── pipeline-pruduct-jobs.groovy                 // pipeline-pruduct-jobs.groovy
 ├── pipeline-test-jobs.groovy                    // pipeline-test-jobs.groovy
 ```
+![img.png](Xmind/images/uttest.png)
+
+![img.png](Xmind/images/Component-test.png)
 
 ![img.png](Xmind/images/ruoyi-ci-arch.png)
 

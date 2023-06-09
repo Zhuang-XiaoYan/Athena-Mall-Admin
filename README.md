@@ -3,17 +3,26 @@
 本项目主要介绍构建athena-ruoyi项目生产云部署工作，后期将全部服务完整上云。
 该仓库同时为后期大规模服务上云以及灰度发布等功能进行演习与测试。
 
------------------------------------------------------------------------------------------------
+**特别注意该仓库的代码是ruoyi-1.3.0版本**
+[ruoyi的研究文档](http://doc.ruoyi.vip/ruoyi-cloud/document/hjbs.html#%E5%90%8E%E7%AB%AF%E8%BF%90%E8%A1%8C)
 
-其他平台将同步更新
+-----
+
+**其他平台将同步更新**
 
 - Github：https://github.com/2462612540
 - Gitee：https://gitee.com/xjl2462612540
 - CSDN：https://blog.csdn.net/weixin_41605937?spm=1001.2014.3001.5343
 
-<mark>**整理不易，还望各位看官一键三连 :heart: :heart: :heart: **</mark>
-
------------------------------------------------------------------------------------------------
+---
+**需要完成的工作**
+1. 前端课程计划，前端重构页面和添加新的页面，同时调用后端。修改ruoyi系统的全部页面，同时调整ruoyi的相关目录结构。
+2. nacos 与mysql的配置关系。对应版本的关系。怎么构建nacos 集群来实现配置。
+3. ruoyi后端系统的代码重构，按照标准的微服务项目结构进行解析和部署工作，构建属于自己的项目架构。
+4. ruoyi在docker-compose的部署工作。
+5. ruoyi的build工作。
+6. 
+---
 
 # 一、Xmind
 
@@ -165,7 +174,6 @@ ruoyi-cicd-repo
 
 ## 7.1 k8s集群
 
-
 ## 7.2 jenkins集群
 
 # 八、Athena-RuoYi的自动化部署系统
@@ -178,6 +186,16 @@ ruoyi-deploy-repo
 │       └── ruoyi-test-deploy-pipeline.groovy             // ruoyi测试环境下的自动部署pipeline
 ├──Jenkins                                            // JenkinsFile
 ├──README.md                                          // Athena-RuoYi的自动化部署系统说明
+```
+
+## 8.1 本地环境部署
+
+```shell
+docker run --name ruoyi-mysql -p 3306:3306 --restart=always --privileged=true -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
+
+docker run --name ruoyi-redis -p 6379:6379 --restart=always --privileged=true -d redis:6.2
+
+docker run --name ruoyi-nacos -p 8848:8848 -p 9848:9848 -p 9849:9849 --restart=always --privileged=true -e JVM_XMS=256m -e JVM_XMX=256m -e MODE=standalone -v /home/xjl/Downloads/docker/nacos/logs:/home/nacos/logs -v /home/xjl/Downloads/docker/nacos/init.d/custom.properties:/home/nacos/init.d/custom.properties  -d nacos/nacos-server:1.3.1
 ```
 
 

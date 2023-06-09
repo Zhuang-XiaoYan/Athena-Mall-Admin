@@ -19,7 +19,7 @@
           <el-tag type="danger">&yen;免费开源</el-tag>
         </p>
         <p>
-          一直想做一款后台管理系统，看了很多优秀的开源项目但是发现没有合适自己的。于是利用空闲休息时间开始自己写一套后台系统。如此有了若依管理系统。
+          一直想做一款后台管理系统，看了很多优秀的开源项目但是发现没有合适自己的。于是利用空闲休息时间开始自己写一套后台系统。如此有了AtenaMall管理系统。
           它可以用于所有的Web应用程序，如网站管理后台，网站会员中心，CMS，CRM，OA等等，当然，您也可以对她进行深度定制，以做出更强系统。
           所有前端后台代码封装过后十分精简易上手，出错概率低。同时支持移动客户端访问。系统会陆续更新一些实用功能。
         </p>
@@ -81,10 +81,10 @@
               <a href="https://jq.qq.com/?_wv=1027&k=Kg9CdVdx" target="_blank">201705537</a>
             </p>
             <p>
-              <i class="el-icon-chat-dot-round"></i> 微信：<a href="javascript:;">/ *若依</a>
+              <i class="el-icon-chat-dot-round"></i> 微信：<a href="javascript:;">/ *AtenaMall</a>
             </p>
             <p>
-              <i class="el-icon-money"></i> 支付宝：<a href="javascript:;" class="支付宝信息">/ *若依</a>
+              <i class="el-icon-money"></i> 支付宝：<a href="javascript:;" class="支付宝信息">/ *AtenaMall</a>
             </p>
           </div>
         </el-card>
@@ -474,7 +474,7 @@
             </el-collapse-item>
             <el-collapse-item title="v1.0.0 - 2020-05-20">
               <ol>
-                <li>若依微服务系统正式发布</li>
+                <li>AtenaMall微服务系统正式发布</li>
               </ol>
             </el-collapse-item>
           </el-collapse>

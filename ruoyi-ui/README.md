@@ -41,7 +41,7 @@ npm run build:prod
 
 # ruoyi-ui服务访问测试
 
-![img.png](img.png)
+![img.png](resources/img.png)
 
 浏览器访问 http://localhost（机器ip）:80
 
